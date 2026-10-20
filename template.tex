@@ -1,0 +1,260 @@
+% !TEX program = xelatex
+\documentclass[11pt,a4paper]{ctexart}
+\usepackage{geometry}
+\geometry{left=2.5cm, right=2.5cm, top=3cm, bottom=3cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{tikz} 
+\usepackage{linegoal}
+\usepackage{calligra} 
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\hypersetup{colorlinks=true, linkcolor=black, urlcolor=blue}
+\setcounter{tocdepth}{2}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{算法竞赛核心模板库}
+\fancyhead[R]{\thepage}
+\setlength{\headheight}{15pt}
+
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color[rgb]{0,0.6,0},
+    stringstyle=\color[rgb]{0.58,0,0.82},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    tabsize=4,
+    showstringspaces=false,
+    extendedchars=false,
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{2cm} 
+
+    \begin{tikzpicture}
+        \node [circle, minimum size=6.5cm, path picture={
+            \node at (path picture bounding box.center){
+                \includegraphics[width=7cm]{cover.png}
+            };
+        }] {};
+    \end{tikzpicture}
+
+    \vspace{2cm} 
+
+    {\huge \textbf{\kaishu 算法竞赛核心模板库} \par}
+    \vspace{0.5cm}
+    {\color{gray!60} \rule{0.6\textwidth}{0.5pt} \vspace{2pt} \par}
+    {\color{gray!60} \rule{0.6\textwidth}{0.5pt} \par}
+
+    \vspace{2cm} 
+    {\Large \hspace{-1cm} {\calligra \huge Jiangcheneee} \hspace{1cm} \Large \fangsong 华中农业大学 \par}
+    \vspace{0.8cm} 
+    {\color{gray!60} \rule{2cm}{0.5pt} \par}
+    \vspace{0.8cm} 
+    {\large \the\year 年 \the\month 月 \the\day 日 \par}
+    \vfill 
+\end{titlepage}
+
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+\section{一键启动模板}
+\subsection{启动文件}
+\lstinputlisting{"启动文件.cpp"}
+
+\section{stl库}
+\subsection{algorithm}
+\lstinputlisting{"stl库/algorithm.cpp"}
+
+\subsection{atan2}
+\lstinputlisting{"stl库/atan2.cpp"}
+
+\subsection{bitset}
+\lstinputlisting{"stl库/bitset.cpp"}
+
+\subsection{map}
+\lstinputlisting{"stl库/map.cpp"}
+
+\subsection{pbds\_tree}
+\lstinputlisting{"stl库/pbds_tree.cpp"}
+
+\subsection{priority\_queue}
+\lstinputlisting{"stl库/priority_queue.cpp"}
+
+\subsection{queue}
+\lstinputlisting{"stl库/queue.cpp"}
+
+\subsection{set\&\&multiset}
+\lstinputlisting{"stl库/set&&multiset.cpp"}
+
+\subsection{stack}
+\lstinputlisting{"stl库/stack.cpp"}
+
+\subsection{string}
+\lstinputlisting{"stl库/string.cpp"}
+
+\subsection{tuple}
+\lstinputlisting{"stl库/tuple.cpp"}
+
+\subsection{vector}
+\lstinputlisting{"stl库/vector.cpp"}
+
+\section{博弈论}
+\subsection{sg函数}
+\lstinputlisting{"博弈论/sg函数.cpp"}
+
+\section{图论}
+\subsection{dij}
+\lstinputlisting{"图论/dij.cpp"}
+
+\subsection{欧拉路径}
+\lstinputlisting{"图论/欧拉路径.cpp"}
+
+\section{数学}
+\subsection{FFT}
+\lstinputlisting{"数学/FFT.cpp"}
+
+\subsection{NTT}
+\lstinputlisting{"数学/NTT.cpp"}
+
+\subsection{exgcd}
+\lstinputlisting{"数学/exgcd.cpp"}
+
+\subsection{中国剩余定理}
+\lstinputlisting{"数学/中国剩余定理.cpp"}
+
+\subsection{中国剩余定理（推导笔记）}
+\input{"数学/中国剩余定理（推导笔记）.tex"}
+
+\subsection{任意模数NTT}
+\lstinputlisting{"数学/任意模数NTT.cpp"}
+
+\subsection{前缀基}
+\lstinputlisting{"数学/前缀基.cpp"}
+
+\subsection{前缀线性基}
+\lstinputlisting{"数学/前缀线性基.cpp"}
+
+\subsection{卢卡斯定理}
+\lstinputlisting{"数学/卢卡斯定理.cpp"}
+
+\subsection{卢卡斯定理（推导笔记）}
+\input{"数学/卢卡斯定理（推导笔记）.tex"}
+
+\subsection{多项式卷积（推导笔记）}
+\input{"数学/多项式卷积（推导笔记）.tex"}
+
+\subsection{欧拉筛}
+\lstinputlisting{"数学/欧拉筛.cpp"}
+
+\subsection{矩阵快速幂}
+\lstinputlisting{"数学/矩阵快速幂.cpp"}
+
+\subsection{矩阵快速幂（加速DP取max）}
+\lstinputlisting{"数学/矩阵快速幂（加速DP取max）.cpp"}
+
+\subsection{线性基（方案还原与删除）}
+\lstinputlisting{"数学/线性基（方案还原与删除）.cpp"}
+
+\subsection{线性基（贪心法）}
+\lstinputlisting{"数学/线性基（贪心法）.cpp"}
+
+\subsection{范德蒙德卷积（推导笔记）}
+\input{"数学/范德蒙德卷积（推导笔记）.tex"}
+
+\subsection{莫比乌斯反演（二维GCD求和）}
+\lstinputlisting{"数学/莫比乌斯反演（二维GCD求和）.cpp"}
+
+\subsection{莫比乌斯反演（推导笔记）}
+\input{"数学/莫比乌斯反演（推导笔记）.tex"}
+
+\subsection{莫比乌斯反演（特定GCD计数）}
+\lstinputlisting{"数学/莫比乌斯反演（特定GCD计数）.cpp"}
+
+\subsection{行列式计算}
+\lstinputlisting{"数学/行列式计算.cpp"}
+
+\section{数据结构}
+\subsection{01trie}
+\lstinputlisting{"数据结构/01trie.cpp"}
+
+\subsection{dsu}
+\lstinputlisting{"数据结构/dsu.cpp"}
+
+\subsection{主席树（区间MEX）}
+\lstinputlisting{"数据结构/主席树（区间MEX）.cpp"}
+
+\subsection{主席树（区间元素数）}
+\lstinputlisting{"数据结构/主席树（区间元素数）.cpp"}
+
+\subsection{主席树（区间第K小）}
+\lstinputlisting{"数据结构/主席树（区间第K小）.cpp"}
+
+\subsection{区间mex}
+\lstinputlisting{"数据结构/区间mex.cpp"}
+
+\subsection{树状数组}
+\lstinputlisting{"数据结构/树状数组.cpp"}
+
+\subsection{线段树}
+\lstinputlisting{"数据结构/线段树.cpp"}
+
+\subsection{线段树（区间max）}
+\lstinputlisting{"数据结构/线段树（区间max）.cpp"}
+
+\subsection{莫队}
+\lstinputlisting{"数据结构/莫队.cpp"}
+
+\section{树论}
+\subsection{倍增}
+\lstinputlisting{"树论/倍增.cpp"}
+
+\subsection{启发式合并}
+\lstinputlisting{"树论/启发式合并.cpp"}
+
+\section{计算几何}
+\subsection{凸包（单调链法）}
+\lstinputlisting{"计算几何/凸包（单调链法）.cpp"}
+
+\subsection{极角排序}
+\lstinputlisting{"计算几何/极角排序.cpp"}
+
+\subsection{求凸包直径（旋转卡壳）}
+\lstinputlisting{"计算几何/求凸包直径（旋转卡壳）.cpp"}
+
+\subsection{求凸包面积}
+\lstinputlisting{"计算几何/求凸包面积.cpp"}
+
+\subsection{闵可夫斯基和与皮克定理}
+\input{"计算几何/闵可夫斯基和与皮克定理.tex"}
+
+\section{杂项}
+\subsection{CDQ分治}
+\lstinputlisting{"杂项/CDQ分治.cpp"}
+
+\subsection{CDQ分治优化DP}
+\lstinputlisting{"杂项/CDQ分治优化DP.cpp"}
+
+\subsection{CDQ分治（推导笔记）}
+\input{"杂项/CDQ分治（推导笔记）.tex"}
+
+\subsection{int128}
+\lstinputlisting{"杂项/int128.cpp"}
+
+\subsection{modint}
+\lstinputlisting{"杂项/modint.cpp"}
+
+
+\end{document}

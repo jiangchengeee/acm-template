@@ -1,0 +1,17 @@
+# LaTeX 中间产物（template.pdf 保留，方便线上直接看）
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+
+# 编译产物
+*.bin
+*.exe
+*.o
+*.dylib
+*.dSYM/
+
+# 编辑器 / 系统
+.DS_Store
+.cph/

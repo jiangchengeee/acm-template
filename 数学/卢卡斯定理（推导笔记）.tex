@@ -1,0 +1,115 @@
+\subsubsection*{1. 问题模型}
+
+求 $\dbinom{n}{m} \bmod p$。$p$ 为\textbf{素数}时用 Lucas 定理，$p$ 为\textbf{合数}时用扩展 Lucas。
+
+\hrulefill
+
+\subsubsection*{2. Lucas 定理与证明}
+
+$p$ 为素数，则
+$$\boxed{\;\binom{n}{m} \equiv \binom{\lfloor n/p \rfloor}{\lfloor m/p \rfloor}\binom{n \bmod p}{m \bmod p} \pmod p\;}$$
+
+\textbf{证明（生成函数）}：在模 $p$ 意义下
+$$(1+x)^p = \sum_{i=0}^{p}\binom{p}{i}x^i \equiv 1 + x^p \pmod p$$
+因为 $0 < i < p$ 时 $p \mid \dbinom{p}{i} = \dfrac{p!}{i!\,(p-i)!}$：分子含因子 $p$，而分母的 $i!\,(p-i)!$ 与 $p$ 互质。
+
+写 $n = sp + r$，其中 $s = \lfloor n/p \rfloor$，$r = n \bmod p$，则
+$$(1+x)^n = \big((1+x)^p\big)^s (1+x)^r \equiv (1+x^p)^s(1+x)^r \pmod p$$
+
+比较两端 $x^m$ 的系数。右端 $= \sum_{i,\,j}\dbinom{s}{i}\dbinom{r}{j}x^{ip+j}$。再把 $m$ 写成 $m = s'p + r'$，
+由于 $0 \le j \le r < p$，方程 $ip + j = m$ 的解唯一：$i = s',\ j = r'$（若 $r' > r$ 则无解，此时 $\binom{r}{r'}=0$）。于是
+$$\binom{n}{m} \equiv \binom{s}{s'}\binom{r}{r'} = \binom{\lfloor n/p \rfloor}{\lfloor m/p \rfloor}\binom{n \bmod p}{m \bmod p} \pmod p$$
+
+\textbf{递归形式}：把 $n, m$ 写成 $p$ 进制 $n = \sum n_i p^i,\ m = \sum m_i p^i$，反复代入即得
+$$\binom{n}{m} \equiv \prod_{i \ge 0} \binom{n_i}{m_i} \pmod p$$
+所以\textbf{只要有某一位 $m_i > n_i$（此时 $\binom{n_i}{m_i}=0$），答案就是 $0$}。
+
+\textbf{实现}：$p$ 不大时预处理 $0!\sim(p-1)!$，单个组合数用费马小定理求逆，每次询问 $O(\log_p n)$；预处理 $O(p)$。
+
+\hrulefill
+
+\subsubsection*{3. Kummer 定理与常用推论}
+
+$$\boxed{\;v_p\!\left(\binom{n}{m}\right) = \text{$p$ 进制下计算 } m + (n-m) \text{ 的进位次数}\;}$$
+
+\textbf{推论}（常考）：$\dbinom{n}{m}$ 对一切 $0 < m < n$ 都不被 $p$ 整除 $\iff n$ 是 $p$ 的幂。
+（无进位 $\iff m$ 的每一位都不超过 $n$ 的对应位；要让每个 $0<m<n$ 都做不到，$n$ 必须只有一位非零。）
+
+\hrulefill
+
+\subsubsection*{4. 扩展 Lucas：模数合数}
+
+设 $P = \prod_{i} p_i^{k_i}$。\textbf{思路}：先在每个素数幂模 $p_i^{k_i}$ 下分别求出 $\dbinom{n}{m}$，
+这些模数两两互质，最后用 CRT 合并（见 CRT 笔记）。
+
+\paragraph{4.1 困难所在}
+$\dbinom{n}{m} = \dfrac{n!}{m!\,(n-m)!}$，但 $p \mid n!$ 时阶乘在模 $p^k$ 下\textbf{不可逆}，不能直接求逆。
+
+\paragraph{4.2 把 $p$ 的幂次单独提出来}
+记 $g(N) = \prod_{1 \le j \le N,\ p \nmid j} j$，即 $[1,N]$ 中所有非 $p$ 倍数的乘积。
+把 $1 \sim n$ 分成"$p$ 的倍数"与"非 $p$ 的倍数"两类：
+$$n! = \underbrace{g(n)}_{\text{非 } p \text{ 倍数}} \cdot \underbrace{p^{\lfloor n/p \rfloor}\left\lfloor \frac{n}{p} \right\rfloor !}_{p \text{ 的倍数，各提一个 } p}$$
+对 $\lfloor n/p \rfloor !$ 继续递归，即得
+$$n! = p^{\,e}\cdot u(n), \qquad e = v_p(n!) = \sum_{i \ge 1}\left\lfloor \frac{n}{p^i} \right\rfloor, \qquad u(n) = \prod_{i \ge 0} g\!\left(\left\lfloor \frac{n}{p^i} \right\rfloor\right)$$
+
+\paragraph{4.3 $g$ 的快速计算（周期性）}
+模 $p^k$ 下，与 $p$ 互质的余数类以 $p^k$ 为周期。记 $f = \prod_{1 \le i \le p^k,\ p \nmid i} i$，则
+$$g(N) \equiv f^{\lfloor N/p^k \rfloor}\cdot \prod_{\substack{1 \le i \le N \bmod p^k \\ p \nmid i}} i \pmod{p^k}$$
+即"$f^{\text{整周期数}} \times \text{零头}$"，$O(p^k)$ 次乘法 —— 这就是要求 $p^k$ 不能太大的原因。
+
+\paragraph{4.4 组合数公式}
+$u(\cdot)$ 的每一项都与 $p$ 互质，故在模 $p^k$ 下可逆：
+$$\boxed{\;\binom{n}{m} \equiv p^{\,e}\cdot u(n)\cdot u(m)^{-1}\cdot u(n-m)^{-1} \pmod{p^k},\qquad
+e = v_p(n!) - v_p(m!) - v_p((n-m)!)\;}$$
+注意 $e \ge 0$；若 $e \ge k$，则 $p^e \equiv 0 \pmod{p^k}$，答案为 $0$。
+
+\paragraph{4.5 合并}
+各 $p_i^{k_i}$ 两两互质，用 CRT 逐个合并即可（约定 $m > n$ 时 $\binom{n}{m} = 0$）。
+
+\hrulefill
+
+\subsubsection*{5. 常考公式速查}
+
+\begin{center}
+\begin{tabular}{|c|p{10.2cm}|}
+\hline
+\textbf{用途} & \textbf{公式} \\
+\hline
+Lucas 定理 & $\binom{n}{m} \equiv \binom{\lfloor n/p \rfloor}{\lfloor m/p \rfloor}\binom{n \bmod p}{m \bmod p} \pmod p$（$p$ 素数）\\
+\hline
+$p$ 进制乘积形式 & $\binom{n}{m} \equiv \prod_i \binom{n_i}{m_i} \pmod p$，某位 $m_i > n_i$ 则为 $0$ \\
+\hline
+Kummer 定理 & $v_p\binom{n}{m} = p$ 进制下 $m + (n-m)$ 的进位次数 \\
+\hline
+整除推论 & $p \nmid \binom{n}{m}\ (\forall\,0<m<n) \iff n = p^k$ \\
+\hline
+阶乘分解 & $n! = p^{\sum_i \lfloor n/p^i \rfloor}\cdot u(n)$，$u(n) = \prod_i g(\lfloor n/p^i \rfloor)$ \\
+\hline
+$g$ 的周期 & $g(N) \equiv f^{\lfloor N/p^k \rfloor}\cdot(\text{零头}) \pmod{p^k}$，$f=\prod_{i \le p^k,\,p \nmid i} i$ \\
+\hline
+exLucas 单项 & $\binom{n}{m} \equiv p^e u(n)u(m)^{-1}u(n-m)^{-1} \pmod{p^k}$ \\
+\hline
+exLucas 合并 & $P = \prod p_i^{k_i}$，各 $p_i^{k_i}$ 上分别求值后 CRT 合并 \\
+\hline
+单点组合数（$n<p$） & $\binom{n}{m} \equiv n!\cdot(m!)^{-1}\cdot((n-m)!)^{-1} \pmod p$，逆元用费马小定理 \\
+\hline
+复杂度 & Lucas $O(p + \log_p n)$；exLucas $O\big(\sum_i p_i^{k_i}\log n\big)$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\hrulefill
+
+\subsubsection*{6. 陷阱}
+
+\begin{itemize}
+    \item \textbf{$p$ 必须是素数}才能用 Lucas。$p$ 为合数时既不能用 Lucas，也不能用费马小定理求逆元（要用 exgcd）；
+    \item $m > n$ 时返回 $0$；$m = 0$ 时返回 $1$，递归边界别写错；
+    \item 预处理阶乘只需到 $p-1$（不是 $n$），这正是 Lucas 能处理 $n \le 10^{18}$ 的原因；
+    \item 若 $p$ 很大（如 $10^9+7$）而 $n < p$，则\textbf{不必用 Lucas}，直接预处理到 $n$ 用费马求逆即可；
+    \item exLucas 的复杂度含 $p^k$ 因子，只适合模数较小（P4720 中 $p \le 10^6$）的场合；
+    \item exLucas 里 $e \ge k$ 时答案直接为 $0$，不必再算 $u$。
+\end{itemize}
+
+\paragraph{例题}：P3807 【模板】卢卡斯定理 $\cdot$ P4720 【模板】扩展卢卡斯 $\cdot$
+P2480 古代猪文（Lucas + CRT）$\cdot$ P6669 多项式（Lucas 数位 DP）。

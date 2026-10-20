@@ -1,0 +1,135 @@
+\subsubsection*{引入}
+
+范德蒙德卷积是一种合并组合数的式子，主要应用于组合数学的公式推导。
+
+\hrulefill
+
+\subsubsection*{范德蒙德卷积公式}
+
+$$
+\sum_{i=0}^k\binom{n}{i}\binom{m}{k-i}=\binom{n+m}{k}
+$$
+
+\paragraph{证明}
+考虑用二项式定理证明：
+
+$$
+\begin{aligned}
+\sum_{k=0}^{n+m}\binom{n+m}{k}x^k&=(x+1)^{n+m}\\
+&=(x+1)^n(x+1)^m\\
+&=\sum_{r=0}^n\binom{n}{r}x^r\sum_{s=0}^m\binom{m}{s}x^s\\
+&=\sum_{k=0}^{n+m}\sum_{r=0}^k\binom{n}{r}\binom{m}{k-r}x^k
+\end{aligned}
+$$
+
+即有：
+
+$$
+\binom{n+m}{k}=\sum_{r=0}^k\binom{n}{r}\binom{m}{k-r}
+$$
+
+若考虑其组合意义证明：在一个大小为 $n+m$ 的集合中取出 $k$ 个数，可以等于把大小为 $n+m$ 的集合拆成两个集合，大小分别为 $n$ 与 $m$，然后从 $n$ 中取出 $i$ 个数，从 $m$ 中取出 $k-i$ 个数的方案数。由于我们有了对于 $i$ 的枚举，于是只需要考虑一种拆法，因为不同的拆法之间是等价的。
+
+\hrulefill
+
+\subsubsection*{边界条件与成立条件}
+
+公式对两个上指标的取值没有限制。设 $n$ 为非负整数，上指标 $a,b$ 可以是任意实数（甚至复数），此时二项式系数按广义定义
+
+$$
+\binom{a}{k}=\frac{a(a-1)(a-2)\cdots(a-k+1)}{k!}\quad(k\ge 0),\qquad
+\binom{a}{k}=0\quad(k<0)
+$$
+
+则
+
+$$
+\sum_{k\in\mathbb{Z}}\binom{a}{k}\binom{b}{n-k}=\binom{a+b}{n}
+$$
+
+仍然成立。求和范围之所以能写成取遍全体整数，是因为有 $\dbinom{a}{k}=0\ (k<0)$ 与 $\dbinom{b}{n-k}=0\ (k>n)$ 这两条约定，所以写成 $\displaystyle\sum_{k=0}^{n}$ 是最安全的写法，既不会漏项也不会多项。
+
+若 $a,b$ 都是非负整数，则非零项恰好落在
+
+$$
+\max(0,\ n-b)\le k\le\min(n,\ a)
+$$
+
+且当 $n>a+b$ 时两边同为 $0$。需要注意"$k>a$ 的项为零"只在 $a$ 为非负整数时才成立：例如 $\dbinom{-1}{k}=(-1)^k$ 对一切 $k\ge 0$ 都非零，此时把上界写成 $a$ 就会出错。
+
+至于为什么可以从非负整数推广到任意实数：固定 $n$ 后，两边都是关于 $a,b$ 的多项式，而由上面的组合意义证明可知它在所有非负整数点上相等，一个有无穷多个零点的多项式恒为零，故恒等式对任意实数 $a,b$ 成立。
+
+\hrulefill
+
+\subsubsection*{推论}
+
+\paragraph{推论 1 及证明}
+$$
+\sum_{i=-r}^{s}\binom{n}{r+i}\binom{m}{s-i}=\binom{n+m}{r+s}
+$$
+
+证明与原公式证明相似。
+
+\paragraph{推论 2 及证明}
+$$
+\sum_{i=1}^n\binom{n}{i}\binom{n}{i-1}=\binom{2n}{n-1}
+$$
+
+根据基础的组合数学知识推导，有：
+
+$$
+\sum_{i=1}^n\binom{n}{i}\binom{n}{i-1}=\sum_{i=0}^{n-1}\binom{n}{i+1}\binom{n}{i}=\sum_{i=0}^{n-1}\binom{n}{n-1-i}\binom{n}{i}=\binom{2n}{n-1}
+$$
+
+\paragraph{推论 3 及证明}
+$$
+\sum_{i=0}^n\binom{n}{i}^2=\binom{2n}{n}
+$$
+
+根据基础的组合数学知识推导，有：
+
+$$
+\sum_{i=0}^n\binom{n}{i}^2=\sum_{i=0}^n\binom{n}{i}\binom{n}{n-i}=\binom{2n}{n}
+$$
+
+\paragraph{推论 4 及证明}
+$$
+\sum_{i=0}^m\binom{n}{i}\binom{m}{i}=\binom{n+m}{m}
+$$
+
+根据基础的组合数学知识推导，有：
+
+$$
+\sum_{i=0}^m\binom{n}{i}\binom{m}{i}=\sum_{i=0}^m\binom{n}{i}\binom{m}{m-i}=\binom{n+m}{m}
+$$
+
+其中 $\dbinom{n+m}{m}$ 是我们较为熟悉的网格图路径计数的方案数。所以我们可以考虑其组合意义的证明。
+
+在一张网格图中，从 $(0,0)$ 走到 $(n,m)$ 共走 $n+m$ 步。规定 $(0,0)$ 位于网格图左上角，其中向下走了 $n$ 步，向右走了 $m$ 步，方案数为 $\dbinom{n+m}{m}$。
+
+换个视角，我们将 $n+m$ 步拆成两部分走，先走 $n$ 步，再走 $m$ 步，那么 $n$ 步中若有 $i$ 步向右，则 $m$ 步中就有 $m-i$ 步向右，故得证。
+
+\paragraph{推论 5 及证明}
+$$
+\sum_{i+j+k=n}\binom{a}{i}\binom{b}{j}\binom{c}{k}=\binom{a+b+c}{n}
+$$
+
+在原公式中把 $n+m$ 看作一个整体，使用两次即可得到。
+
+\hrulefill
+
+\subsubsection*{习题}
+
+\begin{itemize}
+    \item \href{https://codeforces.com/problemset/problem/785/D}{CF785D Anton and School - 2}
+    \item \href{https://www.luogu.com.cn/problem/P2791}{洛谷 P2791 幼儿园篮球题}
+\end{itemize}
+
+\hrulefill
+
+\subsubsection*{参考资料与注释}
+
+\begin{enumerate}
+    \item \href{https://www.cut-the-knot.org/arithmetic/algebra/VandermondeConvolution.shtml}{Vandermonde's Convolution Formula}
+    \item \href{https://oi-wiki.org/math/combinatorics/vandermonde-convolution/}{OI Wiki：范德蒙德卷积}
+\end{enumerate}

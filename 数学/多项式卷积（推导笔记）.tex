@@ -1,0 +1,105 @@
+\subsubsection*{1. 卷积与点值表示}
+
+两个多项式的乘积
+$$c_k=\sum_{i+j=k}a_ib_j$$
+直接算是 $O(n^2)$。但把多项式换成\textbf{点值表示}（在若干点处的取值），乘法就变成逐点相乘：
+
+$$\text{系数表示} \xrightarrow{\text{求值}} \text{点值表示} \xrightarrow{\text{逐点相乘}} \text{点值表示} \xrightarrow{\text{插值}} \text{系数表示}$$
+
+只要取 $n\ge \deg a+\deg b+1$ 个点，逐点相乘后插值就能得到准确的乘积。若能在 $O(n\log n)$ 内完成求值与插值，总复杂度就是 $O(n\log n)$。选点要选得「有结构」，这就是单位根。
+
+\subsubsection*{2. DFT 与单位根}
+
+令 $\omega_n=e^{2\pi i/n}$（$n$ 次本原单位根）。\textbf{离散傅里叶变换（DFT）}取点 $\omega_n^0,\omega_n^1,\dots,\omega_n^{n-1}$：
+
+$$\hat a_j=\sum_{i=0}^{n-1}a_i\,\omega_n^{ij},\qquad j=0,1,\dots,n-1$$
+
+单位根的关键性质：
+
+\begin{itemize}
+    \item $\omega_n^n=1$，$\omega_n^{n/2}=-1$；
+    \item \textbf{折半引理}：$\omega_{2n}^{2k}=\omega_n^{k}$，所以长度 $2n$ 的变换可以拆成长度 $n$ 的两个变换；
+    \item \textbf{可逆性}：$\displaystyle a_i=\frac1n\sum_{j=0}^{n-1}\hat a_j\,\omega_n^{-ij}$。
+\end{itemize}
+
+最后一条说明\textbf{逆变换就是把 $\omega_n$ 换成 $\omega_n^{-1}$，再整体除以 $n$}，所以 FFT 只需要写一个函数、加一个方向参数。
+
+\subsubsection*{3. FFT：分治的实现}
+
+把 $a$ 按下标奇偶拆成两半，设
+$$E_j=\sum_{k}a_{2k}\omega_{n/2}^{kj},\qquad O_j=\sum_k a_{2k+1}\omega_{n/2}^{kj}$$
+（分别是偶数项、奇数项的长度 $n/2$ 的 DFT）。由折半引理，
+$$\hat a_j=E_j+\omega_n^jO_j\qquad (0\le j<n/2)$$
+
+又因为 $\omega_n^{j+n/2}=-\omega_n^{j}$，有
+$$\hat a_{j+n/2}=E_j-\omega_n^jO_j$$
+
+所以\textbf{一次长度 $n$ 的 DFT 由两次长度 $n/2$ 的 DFT 加 $O(n)$ 的合并得到}，递归下去：
+$$T(n)=2T(n/2)+O(n)=O(n\log n)$$
+
+实现上先用\textbf{位反转置换}把序列排成递归所需的顺序，再从长度为 2 开始自底向上合并，就得到前面那 20 行左右的迭代写法。
+
+\subsubsection*{4. NTT：把单位根换成原根}
+
+复数的 $\omega_n$ 有精度误差，而且不能直接做模运算。若在模 $p$ 下有元素 $g$ 满足 $g^{n}=1$ 且 $g^0,\dots,g^{n-1}$ 两两不同，就能完全照搬上面的推导，只是把 $e^{2\pi i/n}$ 换成 $g$。
+
+取 $g$ 为模 $p$ 的原根，则 $g^{(p-1)/n}$ 恰好是「$n$ 次单位根」（当 $n\mid p-1$）。于是：
+
+\begin{itemize}
+    \item 要求 $2^k\mid p-1$，$k$ 至少要满足 $n\le 2^k$；
+    \item 常用的 $p=998244353=119\cdot2^{23}+1$，原根 $3$，所以支持到 $2^{23}$ 的长度；
+    \item 逆变换把 $g$ 换成 $g^{-1}$（即 $g^{p-2}$），最后乘 $n^{-1}$。
+\end{itemize}
+
+除了「用整数模运算代替复数」，其余（位反转、蝴蝶合并、逆变换）和 FFT 一模一样。
+
+\subsubsection*{5. 任意模数 NTT}
+
+目标模数 $M$ 例如 $10^9+7$，它不满足 $2^k\mid M-1$，没法在模 $M$ 下直接跑 NTT。做法是：
+
+\textbf{取三个 NTT 友好素数}分别算出真实系数的余数，再用中国剩余定理把真实系数还原出来：
+
+$$p_1=998244353,\quad p_2=1004535809,\quad p_3=469762049$$
+$$P=p_1p_2p_3\approx4.7\times10^{26}$$
+
+设真实系数为 $c$。三素数乘积 $P$ 远大于 $c$ 的上界时，$c$ 就是 $c\bmod P$ 的唯一代表元，于是先算出 $r_i=c\bmod p_i$，再做 CRT 得 $c$，最后对 $M$ 取模即可。
+
+\textbf{上界}：系数 $a_i,b_i\in[0,M)$ 时，卷积系数
+$$c\le n\,(M-1)^2$$
+取 $M\le10^9$、$n\le10^6$ 有 $c<10^{24}<P$，所以三素数够用（两素数只有约 $10^{18}$，不够）。
+
+CRT 用两步增量合并即可（设 $x\equiv r_1\pmod{p_1}$、$x\equiv r_2\pmod{p_2}$、$x\equiv r_3\pmod{p_3}$）：
+$$t_1\equiv(r_2-r_1)\,p_1^{-1}\pmod{p_2},\qquad x_1=r_1+p_1t_1$$
+$$t_2\equiv(r_3-x_1)\,(p_1p_2)^{-1}\pmod{p_3},\qquad x=x_1+p_1p_2t_2$$
+
+最后只要 $\bigl(r_1+p_1t_1+p_1p_2t_2\bigr)\bmod M$，不必真的把 $x$ 完整算出来。
+
+\subsubsection*{6. 复杂度、精度与坑}
+
+\begin{center}
+\begin{tabular}{|c|p{9.6cm}|}
+\hline
+\textbf{方案} & \textbf{适用条件 / 注意点} \\
+\hline
+FFT & 复数运算，$O(n\log n)$；用 \texttt{double}，结果要 \texttt{llround} 修正；系数或长度大了有精度风险 \\
+\hline
+NTT & 结果本来就取模、且模数满足 $2^k\mid p-1$（如 998244353）；整数运算无误差 \\
+\hline
+任意模数 NTT & 模数任意，但要用三个 NTT 素数 + CRT，常数约为普通 NTT 的 3 倍 \\
+\hline
+长度 & 必须是 2 的幂，取 $\ge \deg a+\deg b+1$；998244353 下上限 $2^{23}$ \\
+\hline
+逆变换 & 别忘了最后整体除以 $n$（乘 $n^{-1}$） \\
+\hline
+精度 & FFT 误差随 $n$ 和系数大小增长；保守界限：$|$系数$|<10^5$、$n<10^6$ 时安全，超了换任意模数 NTT \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{常见坑}：
+
+\begin{itemize}
+    \item 长度开小了会折叠（循环卷积），结果全错；
+    \item 任意模数 NTT 的 CRT 中间量 $p_1p_2\approx10^{18}$，用 \texttt{long long} 时注意别先乘后取模搞溢出；
+    \item 多项式的「次数 + 1」才是项数，输入输出下标别差一位。
+\end{itemize}

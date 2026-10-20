@@ -1,0 +1,111 @@
+\subsubsection*{1. 问题模型与结论}
+
+解同余方程组 $x \equiv a_i \pmod{m_i}\ (i = 1, \dots, n)$。
+
+\begin{itemize}
+    \item \textbf{CRT}：若 $m_1, \dots, m_n$ \textbf{两两互质}，令 $M = \prod m_i$，则必有解，且在模 $M$ 下唯一，
+    即 $[0, M)$ 内恰有一个解。本质是把"模 $M$"拆成若干个"模 $m_i$"独立求解再拼回。
+    \item \textbf{通解}：$x = x_0 + kM$；若要求答案 $\ge 1$，则最小正整数解为
+    $$\big((x_0 - 1) \bmod M\big) + 1$$
+    \item \textbf{有解判据}（模数不互质时）：$\ \forall i, j:\ a_i \equiv a_j \pmod{\gcd(m_i, m_j)}$。
+\end{itemize}
+
+\hrulefill
+
+\subsubsection*{2. 模数互质：构造法}
+
+记 $M_i = \dfrac{M}{m_i}$。互质保证 $\gcd(M_i, m_i) = 1$，故逆元 $t_i \equiv M_i^{-1} \pmod{m_i}$ 存在
+（用 exgcd 解 $M_i t_i + m_i s_i = 1$，\textbf{不可用费马小定理}）：
+$$\boxed{\;x \equiv \sum_{i=1}^{n} a_i M_i t_i \pmod M\;}$$
+
+\textbf{正确性}：放到模 $m_j$ 下看，$i \neq j$ 时 $m_j \mid M_i$，该项为 $0$；$i = j$ 时 $M_j t_j \equiv 1$，该项为 $a_j$。
+故 $x \equiv a_j \pmod{m_j}$ 对每个 $j$ 成立。
+
+\textbf{唯一性}：$x, y$ 均为解 $\Rightarrow m_i \mid (x - y)$ 对每个 $i$；两两互质 $\Rightarrow M \mid (x-y)$，即 $x \equiv y \pmod M$。
+
+复杂度 $O(n \log M)$。
+
+\hrulefill
+
+\subsubsection*{3. 模数不互质：EXCRT 逐方程合并}
+
+此时 $\gcd(M_i, m_i) \neq 1$，逆元不存在，构造法失效。改为把两个方程并成一个。
+
+设 $x = a_1 + m_1 k$ 代入第二式，令 $g = \gcd(m_1, m_2)$：
+$$m_1 k \equiv a_2 - a_1 \pmod{m_2}$$
+由裴蜀定理，有解 $\iff g \mid (a_2 - a_1)$；由 exgcd 解 $m_1 t + m_2 s = g$ 得
+$$k \equiv \frac{a_2 - a_1}{g} \cdot t \pmod{\frac{m_2}{g}}$$
+回代即得\textbf{两个方程等价于一个方程}（模数被约掉了因子 $g$，这是 EXCRT 快的原因）：
+$$\boxed{\;x \equiv a' \pmod{\frac{m_1}{g} m_2}, \qquad a' = a_1 + m_1 k_0\;}$$
+
+\textbf{迭代}：维护 $x \equiv x_0 \pmod M$（初始 $0, 1$），每次并入 $x \equiv a_i \pmod{m_i}$：
+$$g = \gcd(M, m_i), \qquad x \equiv x_0 + Mt \pmod{\frac{M}{g} m_i}$$
+其中 $t$ 由 $M t \equiv a_i - x_0 \pmod{m_i}$ 解出，即 $t \equiv \dfrac{a_i - x_0}{g} \cdot (\text{exgcd 的解}) \pmod{\dfrac{m_i}{g}}$。
+每步都是充要变形，$n$ 次后得到的单方程与原方程组同解，最终 $M = \operatorname{lcm}(m_1, \dots, m_n)$。
+
+复杂度 $O(n \log \max m_i)$。
+
+\hrulefill
+
+\subsubsection*{4. 实现要点}
+
+\begin{itemize}
+    \item 常数 $c = a_i - x_0$ 与特解 $t$ 都先归一到 $[0, \cdot)$。由 $t \le \frac{m_i}{g} - 1$ 得
+    $x_0 + Mt < M + (\operatorname{lcm} - M) = \operatorname{lcm}$，即\textbf{中间量不超过最终模数}，不会额外溢出；
+    \item $\operatorname{lcm}$ 必须\textbf{先除后乘}：$\dfrac{M}{g} \cdot m_i$；
+    \item 板子只到 \texttt{long long}（$\operatorname{lcm} \le 9.2 \times 10^{18}$）；再大要换 \texttt{\_\_int128} 版本，
+    且那时 $a \times b$ 不能再用 \texttt{\_\_int128} 中转，须改用龟速乘；
+    \item 防爆乘里\textbf{两个乘数都要先归一化}：exgcd 给出的系数可能是负的，负系数直接取模会得到负数，
+    破坏后续"两数均 $< p$"的加法前提；
+    \item $x_0$ 已归一到 $[0, \operatorname{lcm})$，故可用 $-1$ 作无解哨兵；
+    \item 余数可能为负或 $\ge m_i$，先 $\big((a_i \bmod m_i) + m_i\big) \bmod m_i$。
+\end{itemize}
+
+\hrulefill
+
+\subsubsection*{5. 常考公式速查}
+
+\begin{center}
+\begin{tabular}{|c|p{10.2cm}|}
+\hline
+\textbf{用途} & \textbf{公式} \\
+\hline
+裴蜀定理 & $ax + by = c$ 有整数解 $\iff \gcd(a,b) \mid c$ \\
+\hline
+一元一次同余方程 & $ax \equiv b \pmod m$ 有解 $\iff \gcd(a,m) \mid b$，解为 $x \equiv \dfrac{b}{g} t \pmod{\dfrac{m}{g}}$（$g=\gcd(a,m)$）\\
+\hline
+互质时构造解 & $x \equiv \sum a_i M_i t_i \pmod M$，$M_i = \dfrac{M}{m_i}$，$t_i \equiv M_i^{-1} \pmod{m_i}$ \\
+\hline
+两方程合并 & $x \equiv a_1 + m_1 k_0 \pmod{\dfrac{m_1}{g} m_2}$，$g = \gcd(m_1, m_2)$ \\
+\hline
+最终模数 & $M = \operatorname{lcm}(m_1, \dots, m_n) = \dfrac{m_1}{g} \cdot m_2$ \\
+\hline
+通解 / 第 $k$ 小非负解 & $x = x_0 + (k-1)M$ \\
+\hline
+最小正整数解 & $\big((x_0 - 1) \bmod M\big) + 1$ \\
+\hline
+有解判据 & $\forall i,j:\ a_i \equiv a_j \pmod{\gcd(m_i, m_j)}$ \\
+\hline
+解不唯一时解的个数 & $ax \equiv b \pmod m$ 在 $[0, m)$ 内恰有 $\gcd(a,m)$ 个解 \\
+\hline
+复杂度 & CRT $O(n \log M)$，EXCRT $O(n \log \max m_i)$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\hrulefill
+
+\subsubsection*{6. 变形与陷阱}
+
+\begin{itemize}
+    \item \textbf{系数不为一}：$a_i x \equiv b_i \pmod{m_i}$ 先约化为
+    $x \equiv x_i \pmod{\dfrac{m_i}{\gcd(a_i, m_i)}}$（$\gcd(a_i,m_i) \nmid b_i$ 时无解），再上 EXCRT；
+    \item \textbf{exLucas}：求 $\binom{n}{m} \bmod P$（$P = \prod p_i^{k_i}$ 为合数），分别求 $\bmod\ p_i^{k_i}$ 再用 CRT 合并；
+    \item \textbf{模合数高斯消元 / BSGS}：同样先按质因子拆分，再 CRT 合并；
+    \item \textbf{带下界}（如 P4774 屠龙勇士）：答案取 $x_0 + kM$ 中满足下界的\textbf{最小}者，不能直接输出 $x_0$；
+    \item \textbf{易错}：模数非素数不能费马求逆元；漏判无解；要求正整数解；合并顺序不影响结果，
+    但先合并小模数不易溢出。
+\end{itemize}
+
+\paragraph{例题}：P1495 曹冲养猪（互质构造）$\cdot$ P4777 EXCRT 模板 $\cdot$ P3868 猜数字（防溢出）$\cdot$
+P4774 屠龙勇士（下界）$\cdot$ P2480 古代猪文（Lucas + CRT）。

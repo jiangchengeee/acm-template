@@ -1,0 +1,76 @@
+\subsubsection*{1. 核心模型：平移相交转化}
+\begin{itemize}
+    \item \textbf{问题模型}：求有多少个整数向量 $(u, v)$，使得放大了 $k$ 倍的凸多边形 $kP$ 在平移 $(u, v)$ 后，与凸多边形 $Q$ 至少有一个公共点。
+    \item \textbf{等价结论}：平移相交等价于\textbf{闵可夫斯基差}。
+    $$(u, v) \in Q \oplus (-kP)$$
+    题目转化为：\textbf{求凸多边形 $R_k = Q \oplus (-kP)$ 内部及边界上的“总整点数”。}
+\end{itemize}
+
+\hrulefill
+
+\subsubsection*{2. 核心公式推导路线}
+
+\paragraph{2.1 皮克定理 (Pick's Theorem) - 离散与连续的桥梁}
+设 $S$ 为多边形面积，$I$ 为内部整点数，$B$ 为边界整点数。
+\begin{itemize}
+    \item \textbf{原始公式}：$S = I + \frac{B}{2} - 1$
+    \item \textbf{变形式（求总整点数）}：设 $Ans = I + B$
+    $$Ans = S + \frac{B}{2} + 1 = \frac{2S + B + 2}{2}$$
+\end{itemize}
+\textit{注：算法中全程维护双倍面积 $2S$ 以避免浮点数精度误差。}
+
+\paragraph{2.2 边界整点数 (Boundary Points) 的线性拆分}
+\begin{itemize}
+    \item \textbf{单边整点数}：对于边向量 $(dx, dy)$，其覆盖的整点数为 $\gcd(|dx|, |dy|)$。
+    \item \textbf{闵可夫斯基和性质}：两个多边形相加，边界整点数直接相加。放大 $k$ 倍，边界整点数也放大 $k$ 倍。
+    \item \textbf{最终公式}：
+    $$B(R_k) = B(Q) + k \cdot B(P)$$
+\end{itemize}
+
+\paragraph{2.3 双倍面积 (Double Area) 的一元二次多项式展开}
+\begin{itemize}
+    \item \textbf{混合体积理论}：两个凸多边形 $A$ 和 $B$ 的闵可夫斯基和面积公式为 $2S(A \oplus B) = 2S(A) + 2S(B) + 2M(A, B)$，其中 $M$ 为混合面积常数。
+    \item \textbf{放大 $k$ 倍后的面积展开}：$-P$ 放大 $k$ 倍，自身面积乘 $k^2$；与 $Q$ 的混合面积乘 $k$。
+    \item \textbf{最终公式}：
+    $$2S(R_k) = 2S(Q) + k^2 \cdot 2S(P) + k \cdot Mix$$
+\end{itemize}
+
+\paragraph{2.4 逆向推导常数 $Mix$}
+\begin{itemize}
+    \item 不需要正面计算混合面积，直接代入 $k=1$ 时的状态反推。
+    \item \textbf{反推公式}：
+    $$Mix = 2S(R_1) - 2S(Q) - 2S(P)$$
+\end{itemize}
+\textit{注：其中 $R_1 = Q \oplus (-P)$，也就是 $k=1$ 时的闵可夫斯基和多边形。}
+
+\hrulefill
+
+\subsubsection*{3. 算法流程}
+
+\begin{enumerate}
+    \item \textbf{预处理极角与多边形}：
+    \begin{itemize}
+        \item 求出点集 $A$ 和 $B$ 的凸包，记为 $P$ 和 $Q$。
+        \item 将 $P$ 取反得到 $-P$，并确保其顶点依旧是\textbf{逆时针}顺序。
+    \end{itemize}
+    \item \textbf{计算基础属性}：
+    \begin{itemize}
+        \item 算出 $2S(P)$、$2S(Q)$（利用叉积）。
+        \item 算出 $B(P)$、$B(Q)$（利用边长坐标差的 $\gcd$）。
+    \end{itemize}
+    \item \textbf{计算 $k=1$ 时的状态}：
+    \begin{itemize}
+        \item 利用\textbf{双指针}和叉积比较，将 $Q$ 和 $-P$ 的边向量合并，得到多边形 $R_1 = Q \oplus (-P)$ 的所有边。
+        \item 利用这些边算出 $2S(R_1)$。
+    \end{itemize}
+    \item \textbf{常数析出}：
+    $$Mix = (2S(R_1) - 2S(Q) - 2S(P) + 2 \times MOD) \pmod{MOD}$$
+    \item \textbf{$O(1)$ 极速回答询问}：\\
+    对于任意给定的 $k$，套入多项式（注意取模操作）：
+    \begin{itemize}
+        \item $Cur\_2S = (2S(Q) + (k^2 \bmod MOD) \cdot 2S(P) + (k \bmod MOD) \cdot Mix) \pmod{MOD}$
+        \item $Cur\_B = (B(Q) + (k \bmod MOD) \cdot B(P)) \pmod{MOD}$
+        \item \textbf{答案}：$Ans = (Cur\_2S + Cur\_B + 2) \times 499122177 \pmod{MOD}$
+    \end{itemize}
+    \textit{注：$499122177$ 是 $2$ 在模 $998244353$ 下的乘法逆元。}
+\end{enumerate}

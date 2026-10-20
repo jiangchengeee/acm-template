@@ -1,0 +1,179 @@
+\subsubsection*{1. 符号、卷积与莫比乌斯函数}
+
+\textbf{狄利克雷卷积}：
+$$(f * g)(n) = \sum_{d \mid n} f(d)\,g\!\left(\frac nd\right)$$
+满足交换律、结合律，单位元是 $\epsilon(n) = [\,n=1\,]$（即 $f * \epsilon = f$）。
+常用函数：$1(n) = 1$（常函数）、$\mathrm{id}(n) = n$、$\epsilon(n) = [n=1]$、$\mu$、$\varphi$。
+
+$$\mu(n) = \begin{cases}
+1, & n = 1\\
+(-1)^k, & n = p_1p_2\cdots p_k \text{（} k \text{ 个互异素数之积）}\\
+0, & n \text{ 含平方因子}
+\end{cases}$$
+
+\textbf{线性筛递推}：$\mu(ip) = 0$（$p \mid i$），$\mu(ip) = -\mu(i)$（$p \nmid i$），$\mu(1)=1$；
+$\varphi(ip) = \varphi(i)\,p$（$p \mid i$），$\varphi(ip) = \varphi(i)(p-1)$（$p \nmid i$）。
+
+\hrulefill
+
+\subsubsection*{2. 三条核心恒等式（实战：看到就换，不要现推）}
+
+$$\boxed{\;\mu * 1 = \epsilon \iff \sum_{d \mid n}\mu(d) = [\,n=1\,]\;}$$
+$$\boxed{\;\varphi * 1 = \mathrm{id} \iff \sum_{d \mid n}\varphi(d) = n\;}$$
+$$\boxed{\;\mu * \mathrm{id} = \varphi \iff \sum_{d \mid n}\mu(d)\,\frac nd = \varphi(n)\;}$$
+
+\textbf{实战意义（这三条就是莫比乌斯反演题的全部工具箱）}：
+
+\begin{center}
+\begin{tabular}{|p{3.2cm}|p{4.9cm}|p{2.3cm}|p{3.0cm}|}
+\hline
+\textbf{式子里看到} & \textbf{立刻换成} & \textbf{依据} & \textbf{效果} \\
+\hline
+$[\gcd(i,j)=1]$ & $\displaystyle\sum_{d \mid \gcd(i,j)}\mu(d)$ & $\mu * 1 = \epsilon$ & \textbf{消灭互质条件} \\
+\hline
+$\gcd(i,j)$ 本体 & $\displaystyle\sum_{d \mid \gcd(i,j)}\varphi(d)$ & $\varphi * 1 = \mathrm{id}$ & \textbf{消灭 $\gcd$ 本体} \\
+\hline
+$\varphi$ 与 $\mu$ 混杂 & 二者互相转化 & $\mu * \mathrm{id} = \varphi$ & 统一成同一种函数 \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{恒等式 1}：$n>1$ 时设 $n$ 有 $k$ 个互异素因子，只有无平方因子的 $d$ 有贡献，
+$$\sum_{d \mid n}\mu(d) = \sum_{S \subseteq \{1,\dots,k\}}(-1)^{|S|} = (1-1)^k = 0$$
+
+\textbf{恒等式 2（按约分后的分母配对计数）}：把 $\dfrac kn\ (k=1,\dots,n)$ 共 $n$ 个分数全部约分。
+约分后分母恰为 $b$ 的分数满足 $b \mid n$ 且分子与 $b$ 互质，有 $\varphi(b)$ 个。按 $b$ 分类即得
+$$\sum_{b \mid n}\varphi(b) = n$$
+
+\textbf{恒等式 3（由前两条推出）}：对 $\varphi * 1 = \mathrm{id}$ 两边同时卷积 $\mu$，用结合律与 $\mu * 1 = \epsilon$：
+$$\mu * (\varphi * 1) = \mu * \mathrm{id}
+\;\Longrightarrow\; \varphi * (\mu * 1) = \mu * \mathrm{id}
+\;\Longrightarrow\; \varphi * \epsilon = \mu * \mathrm{id}
+\;\Longrightarrow\; \varphi = \mu * \mathrm{id}$$
+展开即
+$$\varphi(n) = \sum_{d \mid n}\mu(d)\,\frac nd = n\sum_{d \mid n}\frac{\mu(d)}{d}$$
+用法：式子里 $\varphi$ 和 $\mu$ 同时出现时，用它把其中一个换掉，统一成同一种函数再合并求和。
+
+\hrulefill
+
+\subsubsection*{3. 莫比乌斯反演}
+
+$$F = f * 1 \iff f = F * \mu
+\qquad\text{即}\qquad
+F(n) = \sum_{d \mid n}f(d) \iff f(n) = \sum_{d \mid n}\mu(d)\,F\!\left(\frac nd\right)$$
+
+\textbf{证明（一行）}：$\mu$ 就是 $1$ 的狄利克雷逆（$\mu * 1 = \epsilon$），所以
+$$F * \mu = (f * 1) * \mu = f * (\mu * 1) = f * \epsilon = f$$
+反向同理（两边再卷 $1$ 即可）。
+
+通俗说法就是\textbf{"两边同卷 $\mu$"}，逐项展开即
+$$\sum_{d \mid n}\mu(d)\,F\!\left(\frac nd\right)
+= \sum_{d \mid n}\mu(d)\sum_{e \mid n/d}f(e)
+= \sum_{e \mid n}f(e)\sum_{d \mid n/e}\mu(d)
+= \sum_{e \mid n}f(e)\,[\,n/e = 1\,] = f(n)$$
+
+\hrulefill
+
+\subsubsection*{4. 核心套路（三步走）}
+
+\begin{enumerate}
+    \item \textbf{替换}：用第 2 节的恒等式，把 $[\gcd=1]$ 或 $\gcd$ 本体展开成约数求和；
+    \item \textbf{交换求和次序}，把 $d$ 提到最外层：
+    $$\sum_{i=1}^{n}\sum_{j=1}^{m}\sum_{d \mid \gcd(i,j)} h(d)
+    = \sum_{d=1}^{\min(n,m)} h(d)\left\lfloor \frac nd \right\rfloor\left\lfloor \frac md \right\rfloor$$
+    因为 $[1,n]$ 中 $d$ 的倍数恰有 $\left\lfloor n/d \right\rfloor$ 个；
+    \item \textbf{整除分块} + $h$ 的前缀和，单次询问 $O(\sqrt n)$。
+\end{enumerate}
+
+\textbf{整除分块}：$\left\lfloor n/d \right\rfloor$ 只有 $O(\sqrt n)$ 种取值。左端点为 $l$ 时该段右端点
+$$r = \min\left(\left\lfloor \frac{n}{\lfloor n/l \rfloor} \right\rfloor,\ \left\lfloor \frac{m}{\lfloor m/l \rfloor} \right\rfloor\right)$$
+在 $[l,r]$ 内 $\lfloor n/d\rfloor, \lfloor m/d\rfloor$ 都不变。
+
+\hrulefill
+
+\subsubsection*{5. 板子一：二维 GCD 求和}
+
+求 $\displaystyle\sum_{i=1}^{n}\sum_{j=1}^{m}\gcd(i,j)$。
+
+\textbf{替换}：看到 $\gcd(i,j)$ \textbf{本体}，用 $\varphi * 1 = \mathrm{id}$ 无脑替换：
+$$\gcd(i,j) = \sum_{d \mid \gcd(i,j)}\varphi(d)$$
+
+\textbf{交换次序}：
+$$\boxed{\;\sum_{i=1}^{n}\sum_{j=1}^{m}\gcd(i,j)
+= \sum_{d=1}^{\min(n,m)}\varphi(d)\left\lfloor \frac nd \right\rfloor\left\lfloor \frac md \right\rfloor\;}$$
+
+预处理 $\varphi$ 的前缀和，整除分块即可，$O(\sqrt n)$ 单次询问。
+
+\textbf{推论}（常考，仪仗队 P2158）：$\displaystyle\sum_{i=1}^{n}\sum_{j=1}^{n}[\gcd(i,j)=1] = 2\sum_{i=1}^{n}\varphi(i) - 1$。
+
+\hrulefill
+
+\subsubsection*{6. 板子二：特定 GCD 计数（ZAP-Queries）}
+
+求 $\displaystyle\sum_{i=1}^{n}\sum_{j=1}^{m}[\gcd(i,j)=k]$，共 $Q$ 次询问。
+
+\textbf{先除 $k$}（把 $k$ 从 $\gcd$ 里拿出来）：$[\gcd(i,j)=k] = [\gcd(i/k,\,j/k)=1]$，令
+$n' = \lfloor n/k \rfloor,\ m' = \lfloor m/k \rfloor$，则原式化为 $\sum_{i \le n'}\sum_{j \le m'}[\gcd(i,j)=1]$。
+
+\textbf{替换}：看到 $[\gcd=1]$，用 $\mu * 1 = \epsilon$ 无脑替换：
+$$[\gcd(i,j)=1] = \sum_{d \mid \gcd(i,j)}\mu(d)$$
+
+\textbf{交换次序}：
+$$\boxed{\;\sum_{i=1}^{n}\sum_{j=1}^{m}[\gcd(i,j)=k]
+= \sum_{d=1}^{\min(n',m')}\mu(d)\left\lfloor \frac{n'}{d} \right\rfloor\left\lfloor \frac{m'}{d} \right\rfloor
+= \sum_{d=1}^{\min(n,m)/k}\mu(d)\left\lfloor \frac{n}{kd} \right\rfloor\left\lfloor \frac{m}{kd} \right\rfloor\;}$$
+
+预处理 $\mu$ 的前缀和，每次询问整除分块 $O(\sqrt{\min(n,m)})$。
+
+\hrulefill
+
+\subsubsection*{7. 常考公式速查}
+
+\begin{center}
+\begin{tabular}{|c|p{10.2cm}|}
+\hline
+\textbf{用途} & \textbf{公式} \\
+\hline
+卷积定义 & $(f*g)(n) = \sum_{d \mid n}f(d)g(n/d)$；单位元 $\epsilon(n)=[n=1]$ \\
+\hline
+$\mu * 1 = \epsilon$ & $\sum_{d\mid n}\mu(d) = [n=1]$（\textbf{消灭互质条件}）\\
+\hline
+$\varphi * 1 = \mathrm{id}$ & $\sum_{d\mid n}\varphi(d) = n$（\textbf{消灭 $\gcd$ 本体}）\\
+\hline
+$\mu * \mathrm{id} = \varphi$ & $\sum_{d\mid n}\mu(d)\dfrac nd = \varphi(n)$（由前两条推出，$\varphi$ 与 $\mu$ 互转）\\
+\hline
+反演定理 & $F = f*1 \iff f = F*\mu$，即 $f(n) = \sum_{d\mid n}\mu(d)F(n/d)$ \\
+\hline
+核心套路 & $\sum_i\sum_j\sum_{d\mid\gcd(i,j)}h(d) = \sum_d h(d)\lfloor n/d\rfloor\lfloor m/d\rfloor$ \\
+\hline
+GCD 求和 & $\sum_i\sum_j \gcd(i,j) = \sum_d \varphi(d)\lfloor n/d\rfloor\lfloor m/d\rfloor$ \\
+\hline
+GCD 计数 & $\sum_i\sum_j[\gcd(i,j)=k] = \sum_{d \le \min(n,m)/k}\mu(d)\lfloor n/(kd)\rfloor\lfloor m/(kd)\rfloor$ \\
+\hline
+互质数对 & $\sum_{i,j \le n}[\gcd(i,j)=1] = 2\sum_{i\le n}\varphi(i) - 1$ \\
+\hline
+整除分块 & $r = \min\!\big(\lfloor n/\lfloor n/l\rfloor\rfloor,\ \lfloor m/\lfloor m/l\rfloor\rfloor\big)$，共 $O(\sqrt n)$ 段 \\
+\hline
+线性筛递推 & $\mu(ip)=0\,(p\mid i)$，$\mu(ip)=-\mu(i)\,(p\nmid i)$；$\varphi(ip)=\varphi(i)p\,(p\mid i)$，$\varphi(ip)=\varphi(i)(p-1)\,(p\nmid i)$ \\
+\hline
+复杂度 & 筛 $O(N)$；单次询问 $O(\sqrt n)$（必须配合前缀和） \\
+\hline
+\end{tabular}
+\end{center}
+
+\hrulefill
+
+\subsubsection*{8. 陷阱}
+
+\begin{itemize}
+    \item $[n=1] = \sum_{d\mid n}\mu(d)$ 是\textbf{求和}，不能把 $[\gcd(i,j)=1]$ 直接写成 $\mu(\gcd(i,j))$；
+    \item 替换后\textbf{一定要交换求和次序}，把 $d$ 提到最外层才能用整除分块；顺序反了式子就卡住；
+    \item 整除分块的右端点必须\textbf{同时}看 $n$ 和 $m$ 两个下取整，只取一个会算错；
+    \item 多组询问一定要预处理前缀和，否则每次询问退化成 $O(n)$；
+    \item $k > \min(n,m)$ 时答案为 $0$（此时 $n' = 0$，分块循环不执行，自然输出 $0$）；
+    \item 筛的规模 $N$ 要不小于题目中的 $\max(n,m)$；ZAP 除完 $k$ 后上界更小；
+    \item 答案与 $\varphi/\mu$ 的前缀和都可能很大，全程用 \texttt{long long}。
+\end{itemize}
+
+\paragraph{例题}：P2398 GCD SUM $\cdot$ P2568 GCD $\cdot$ P2158 仪仗队 $\cdot$
+P3455 [POI2007] ZAP-Queries $\cdot$ P3327 [SDOI2015] 约数个数和 $\cdot$ P1829 [国家集训队] Crash的数字表格。
