@@ -4,67 +4,70 @@ using ll = long long;
 #define up(i, a, b) for (int i = (a); i <= (b); ++i)
 #define down(i, a, b) for (int i = (a); i >= (b); --i)
 #define int long long
-// 三分：求单峰函数的最值。凸函数（中间低两边高）用 *_min，凹函数（中间高两边低）用 *_max
-// 函数用 lambda 传进来，所以实数、整数、二维（三分套三分）都能直接用
-//   例：auto f = [&](long double x){ return (x - 2) * (x - 2) + 3; };
-//       long double x = ternary_min(-10, 10, f);   // 极小值点
+mt19937_64 gen(12345);
+const int N=1e6+5,inf=0x3f3f3f3f3f3f3f3f;;
+int n,m,q,k,mod=998244353;
+int a[N],b[N],c[N],d[N];
 
-// ---------- 实数域 ----------
-// 在 [l, r] 上找极小值点，返回 x（要函数值就再求一次 f(x)）
-template <class F>
-double ternary_min(double l, double r, F f)
-{
-	up(it, 1, 100) {//100 次收缩后区间缩小到 (2/3)^100，早就到 double 精度极限
-		double m1 = l + (r - l) / 3, m2 = r - (r - l) / 3;
-		if (f(m1) < f(m2)) r = m2;//极小值在 [l, m2] 里
-		else l = m1;              //极小值在 [m1, r] 里
-	}
-	return (l + r) / 2;
-}
-// 找极大值点：对 -f 求极小
-template <class F>
-double ternary_max(double l, double r, F f)
-{
-	return ternary_min(l, r, [&](double x) { return -f(x); });
-}
+// 题目给的函数，赛时把这里换掉即可
+double f(double x){return (x-2)*(x-2)+3;}          // 凸：中间低
+double g(double x){return -(x+1)*(x+1)+5;}         // 凹：中间高
+double f2(double x,double y){return (x-1)*(x-1)+(y+2)*(y+2);}  // 二维凸
 
-// ---------- 整数域 ----------
-// 先收缩到长度 <= 2，再暴力比较剩下的几个点（整数下这样最稳，不会因为取整漏掉答案）
-template <class F>
-int ternary_min_int(int l, int r, F f)
-{
-	while (r - l > 2) {
-		int m1 = l + (r - l) / 3, m2 = r - (r - l) / 3;
-		if (f(m1) < f(m2)) r = m2;
-		else l = m1;
+// 二分套三分里"固定 y 三分 x"的内层，返回最优的 x
+double best_x(double y){
+	double l=-10,r=10;
+	up(it,1,100){
+		double m1=l+(r-l)/3,m2=r-(r-l)/3;
+		if(f2(m1,y)<f2(m2,y))r=m2;
+		else l=m1;
 	}
-	int best = l;
-	up(i, l + 1, r)if (f(i) < f(best))best = i;
-	return best;
-}
-// 极大值点：同样对 -f 求极小
-template <class F>
-int ternary_max_int(int l, int r, F f)
-{
-	return ternary_min_int(l, r, [&](int x) { return -f(x); });
+	return (l+r)/2;
 }
 
 void solve(){
-	auto f = [](double x) { return (x - 2) * (x - 2) + 3; };//凸：最小值在 x=2
-	auto g = [](double x) { return -(x + 1) * (x + 1) + 5; };//凹：最大值在 x=-1
-	auto h = [](int x) { return (x - 5) * (x - 5); };//凸：最小值在 x=5
-	auto t = [](int x) { return -(x - 7) * (x - 7) + 9; };//凹：最大值在 x=7
+	// ============ 1. 实数域三分：凸函数求最小值 ============
+	double l=-10,r=10;
+	up(it,1,100){//写死 100 次，不用管 eps
+		double m1=l+(r-l)/3,m2=r-(r-l)/3;
+		if(f(m1)<f(m2))r=m2;      //极小值在 [l,m2]
+		else l=m1;                //极小值在 [m1,r]
+	}
+	double x1=(l+r)/2;
+	cout<<"凸(实) "<<x1<<" "<<f(x1)<<'\n';
 
-	double x1 = ternary_min(-10.0, 10.0, f);
-	double x2 = ternary_max(-10.0, 10.0, g);
-	int x3 = ternary_min_int(0, 20, h);
-	int x4 = ternary_max_int(0, 20, t);
+	// ============ 2. 实数域三分：凹函数求最大值 ============
+	// 和上面只差一个比较符号：把 f(m1)<f(m2) 改成 g(m1)>g(m2)
+	l=-10,r=10;
+	up(it,1,100){
+		double m1=l+(r-l)/3,m2=r-(r-l)/3;
+		if(g(m1)>g(m2))r=m2;      //极大值在 [l,m2]
+		else l=m1;
+	}
+	double x2=(l+r)/2;
+	cout<<"凹(实) "<<x2<<" "<<g(x2)<<'\n';
 
-	cout << fixed << setprecision(6);
-	cout << "凸(实) 极值点 x = " << x1 << "，值 = " << f(x1) << '\n';
-	cout << "凹(实) 极值点 x = " << x2 << "，值 = " << g(x2) << '\n';
-	cout << "凸(整) 极值点 x = " << x3 << "，值 = " << h(x3) << '\n';
-	cout << "凹(整) 极值点 x = " << x4 << "，值 = " << t(x4) << '\n';
+	// ============ 3. 整数域三分：先收缩到长度 <= 2，再暴力 ============
+	long long L=0,R=20,bf=inf,bp=L;
+	while(R-L>2){
+		long long m1=L+(R-L)/3,m2=R-(R-L)/3;
+		if(f(m1)<f(m2))R=m2;      //求最大就把这里改成 >
+		else L=m1;
+	}
+	up(i,L,R)if(f(i)<bf)bf=f(i),bp=i;//剩下几个点直接比
+	cout<<"凸(整) "<<bp<<" "<<bf<<'\n';
+
+	// ============ 4. 三分套三分：二维求最小值（全局最优）============
+	// 外层三分 y，内层固定 y 三分 x
+	double yl=-10,yr=10,y1,y2;
+	up(it,1,100){
+		y1=yl+(yr-yl)/3,y2=yr-(yr-yl)/3;
+		double v1=f2(best_x(y1),y1),v2=f2(best_x(y2),y2);
+		if(v1<v2)yr=y2;
+		else yl=y1;
+	}
+	double yy=(yl+yr)/2,xx=best_x(yy);
+	cout<<"二维   "<<xx<<" "<<yy<<" "<<f2(xx,yy)<<'\n';
 }
 
 signed main()
@@ -76,16 +79,20 @@ signed main()
 	while (t--){
 		solve();
 	}
+//	system("x-www-browser https://ys.mihoyo.com/");
+//	cout << fixed << setprecision(10) << x << '\n';
 	return 0;
 }
 /*
-凸(实) 极值点 x = 2.000000，值 = 3.000000
-凹(实) 极值点 x = -1.000000，值 = 5.000000
-凸(整) 极值点 x = 5，值 = 0
-凹(整) 极值点 x = 7，值 = 9
+凸(实) 2 3
+凹(实) -1 5
+凸(整) 2 3
+二维   1 -2 0
 
-拓展：
-1. 二维（三分套三分）：外层三分 y，内层对每个 y 三分 x 求最优，注意外层函数值就是内层的最优值；
-2. 复杂度：实数域 O(100) 次求值，整数域 O(log n) 次求值；
-3. 函数必须严格单峰（或有平顶也行），多峰的题要换思路。
+要点：
+1. 实数域：m1 = l+(r-l)/3，m2 = r-(r-l)/3，写死 100 次迭代；
+   凸函数求最小用 f(m1)<f(m2) → r=m2，凹函数求最大把 < 改成 >。
+2. 整数域：收缩到 R-L<=2 后暴力，避免取整漏掉最优解。
+3. 二维：外层三分 y，内层固定 y 三分 x 求最优，内层的最优值就是外层的函数值。
+4. 三分只对单峰（有平顶也行）函数有效，多峰会挂在局部最优。
 */
