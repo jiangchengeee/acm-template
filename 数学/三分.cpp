@@ -56,12 +56,23 @@ void solve(){
 	long long lo=-1000000000,hi=1000000000;
 	while(hi-lo>2){
 		long long m1=lo+(hi-lo)/3,m2=hi-(hi-lo)/3;
-		if(gain(m1)<gain(m2))hi=m2;    //求最大就把 < 改成 >
+		if(gain(m1)<gain(m2))hi=m2;    //凸函数求最小：<
 		else lo=m1;
 	}
 	long long bp=lo;
-	up(i,lo,hi)if(gain(i)<gain(bp))bp=i;
+	up(i,lo,hi)if(gain(i)<gain(bp))bp=i;//注意这一处也要和上面一起改！
 	printf("凸(整) 最优点 x=%lld  收益=%.6f\n",bp,gain(bp));
+
+	// ============ 4. 凹函数 + 整数域：两处都换成 > ============
+	lo=-1000000000,hi=1000000000;
+	while(hi-lo>2){
+		long long m1=lo+(hi-lo)/3,m2=hi-(hi-lo)/3;
+		if(gain2(m1)>gain2(m2))hi=m2;   //凹函数求最大：>
+		else lo=m1;
+	}
+	bp=lo;
+	up(i,lo,hi)if(gain2(i)>gain2(bp))bp=i;   //这里同样用 >
+	printf("凹(整) 最优点 x=%lld  收益=%.6f\n",bp,gain2(bp));
 }
 
 signed main()
@@ -83,10 +94,12 @@ signed main()
 // 凸(实) 最优点 x=7.000000  收益=16.000000     距离和最小 = 中位数
 // 凹(实) 最优点 x=6.200000  收益=-68.800000    负平方偏差和最大 = 平均值
 // 凸(整) 最优点 x=7  收益=16.000000
+// 凹(整) 最优点 x=6  收益=-69.000000
 
 要点：
 1. gain(x) 就是"选位置 x 时的收益"，凸函数求最小、凹函数求最大，只差一个比较符号；
 2. 实数域三分写死 100 次迭代即可；
 3. 答案要是整数就用整数三分（收缩到长度<=2 再暴力），别实数三分后取整；
+   注意 while 里的比较和最后暴力那处的比较必须同时改（求最小用 <，求最大用 >），只改一处会错；
 4. 三分只对单峰函数有效，多峰的收益函数会停在局部最优。
 */
