@@ -1,0 +1,95 @@
+\subsubsection*{1. 问题模型}
+
+有一类 DP 题目：状态少（通常 2 个）、转移只依赖\textbf{相邻两项}，但要求支持\textbf{单点修改}并每次回答答案。朴素做法每次修改重跑 DP 是 $O(n)$，$q$ 次就是 $O(nq)$。动态 DP（DDP）把它做到 $O(\log n)$ 每次。
+
+\subsubsection*{2. 把转移写成矩阵}
+
+设 $dp_i(j)$ 表示处理完前 $i$ 个元素、第 $i$ 个处于状态 $j$ 时的方案数（或最优值）。转移只依赖前一个状态：
+
+$$dp_i(j)=\sum_{k} dp_{i-1}(k)\cdot T_i(k,j)$$
+
+其中 $T_i(k,j)$ 是「第 $i-1$ 个取状态 $k$、第 $i$ 个取状态 $j$」这一对相邻状态是否合法（合法记 1，否则记 0）。这就是一个矩阵：
+
+$$\begin{pmatrix}dp_i(0)\\dp_i(1)\end{pmatrix}=\begin{pmatrix}T_i(0,0)&T_i(1,0)\\T_i(0,1)&T_i(1,1)\end{pmatrix}\begin{pmatrix}dp_{i-1}(0)\\dp_{i-1}(1)\end{pmatrix}$$
+
+或写成行向量右乘 $M_i$（本文采用这种写法，和线段树从左往右合并的方向一致）：
+
+$$v_i=v_{i-1}\cdot M_i,\qquad M_i(k,j)=T_i(k,j)$$
+
+于是整段的答案就是
+
+$$v_n=v_1\cdot M_2M_3\cdots M_n$$
+
+初值向量 $v_1=(1,1)$（第一个元素取任何状态都合法），答案是 $v_n$ 各分量之和。
+
+\subsubsection*{3. 为什么可以做「动态」}
+
+关键在于\textbf{矩阵乘法满足结合律}：$M_2(M_3M_4)=(M_2M_3)M_4$。所以可以把连乘交给\textbf{线段树}维护：
+
+\begin{itemize}
+    \item 每个叶子存一个 $M_i$，内部结点存左右儿子的乘积；
+    \item 单点修改第 $p$ 个元素时，只有 $M_{p}$ 和 $M_{p+1}$ 会变（因为 $M_i$ 只依赖第 $i-1$ 和第 $i$ 个元素），改两处后沿树往上更新 $O(\log n)$ 个结点；
+    \item 根结点就是整个连乘，直接把根的各分量求和即为答案。
+\end{itemize}
+
+查询「区间 $[l,r]$ 的 DP 值」也可以做：用线段树取区间乘积再乘初值即可，$O(\log n)$。
+
+\subsubsection*{4. 复杂度与适用条件}
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{项} & \textbf{值} \\
+\hline
+单次修改 & $O(s^3\log n)$，$s$ 为状态数（本题 $s=2$，常数极小）\\
+\hline
+单次查询 & $O(s^2\log n)$，或直接读根结点 $O(s^2)$ \\
+\hline
+建树 & $O(ns^3)$ \\
+\hline
+适用前提 & 状态数少、转移只依赖相邻项、合法性与"位置 + 相邻元素"有关 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection*{5. 木棍题的矩阵推导}
+
+按「第 $x$ 根木棍在坐标 $x$，向左倒覆盖 $[x-a_x,x]$，向右倒覆盖 $[x,x+a_x]$，边缘可以接触（只共享端点算合法）」这个模型：
+
+两个相邻区间重叠（正长度）才算不合法。逐个方向对枚举：
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{前一根} & \textbf{后一根} & \textbf{合法性} \\
+\hline
+左 & 右 & 恒合法（一个在左、一个在右）\\
+\hline
+左 & 左 & $[x-1-a_{x-1},x-1]$ 与 $[x-a_x,x]$ 重叠 $\iff a_x>1$，即合法 $\iff a_x=1$ \\
+\hline
+右 & 右 & $[x-1,x-1+a_{x-1}]$ 与 $[x,x+a_x]$ 重叠 $\iff a_{x-1}>1$，即合法 $\iff a_{x-1}=1$ \\
+\hline
+右 & 左 & 两根都盖住 $x-1$ 附近，恒重叠，恒不合法 \\
+\hline
+\end{tabular}
+\end{center}
+
+于是
+
+$$M_x=\begin{pmatrix}1&1\\0&[a_{x-1}=1]\end{pmatrix},\qquad
+\text{第一列} = (0,1)=\text{"（左，左）"、"（右，左）"}$$
+
+其中第 $0$ 行对应「前一根向左」，第 $1$ 行对应「前一根向右」，第 $0$ 列对应「这一根向左」，第 $1$ 列对应「这一根向右」。
+
+\paragraph{修改}
+把 $a_p$ 改成 $v$ 时，受影响的只有 $M_p$（依赖 $a_{p-1},a_p$）和 $M_{p+1}$（依赖 $a_p,a_{p+1}$），各改一次线段树，$O(\log n)$。
+
+\subsubsection*{6. 常见坑}
+
+\begin{itemize}
+    \item \textbf{矩阵方向要统一}：行向量右乘还是列向量左乘，决定 $M_i$ 是 $T(k,j)$ 还是 $T(j,k)$，混了就会把「L→R」当成「R→L」；
+    \item \textbf{初值向量别忘了}：第一个元素的两种状态都合法，初值是 $(1,1)$，不是零向量；
+    \item \textbf{修改要改两处}：$M_p$ 和 $M_{p+1}$，只改一个会漏；
+    \item \textbf{边界}：$n=1$ 时没有相邻矩阵，答案直接是状态数（如 2）；
+    \item \textbf{如果是最优化而不是计数}，把 $\sum$ 换成 $\max$、$+$ 换成乘（max-plus 矩阵），骨架完全一样。
+\end{itemize}
