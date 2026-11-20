@@ -59,17 +59,17 @@ $$v_n=v_1\cdot M_2M_3\cdots M_n$$
 两个相邻区间重叠（正长度）才算不合法。逐个方向对枚举：
 
 \begin{center}
-\begin{tabular}{|c|c|c|}
+\begin{tabular}{|c|c|p{8.2cm}|}
 \hline
 \textbf{前一根} & \textbf{后一根} & \textbf{合法性} \\
 \hline
-左 & 右 & 恒合法（一个在左、一个在右）\\
+左 & 右 & 恒合法（一个朝左、一个朝右）\\
 \hline
-左 & 左 & $[x-1-a_{x-1},x-1]$ 与 $[x-a_x,x]$ 重叠 $\iff a_x>1$，即合法 $\iff a_x=1$ \\
+左 & 左 & 区间 $[x-1-a_{x-1},x-1]$ 与 $[x-a_x,x]$ 重叠当且仅当 $a_x>1$，故合法 $\iff a_x=1$ \\
 \hline
-右 & 右 & $[x-1,x-1+a_{x-1}]$ 与 $[x,x+a_x]$ 重叠 $\iff a_{x-1}>1$，即合法 $\iff a_{x-1}=1$ \\
+右 & 右 & 区间 $[x-1,x-1+a_{x-1}]$ 与 $[x,x+a_x]$ 重叠当且仅当 $a_{x-1}>1$，故合法 $\iff a_{x-1}=1$ \\
 \hline
-右 & 左 & 两根都盖住 $x-1$ 附近，恒重叠，恒不合法 \\
+右 & 左 & 两根都盖到 $x-1$ 附近，恒重叠，恒不合法 \\
 \hline
 \end{tabular}
 \end{center}
