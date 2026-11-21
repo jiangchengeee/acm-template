@@ -1,0 +1,93 @@
+\subsubsection*{1. 两个基础定理}
+
+\textbf{最大流 = 最小割}（max-flow min-cut）：最大流的值等于所有 $s$-$t$ 割中最小的那个割的容量。跑完 Dinic 后，残留网络里从 $s$ 能到达的点集 $S$ 给出一个最小割 $(S, V\setminus S)$。
+
+\textbf{增广直到无路}：Dinic 反复分层 + 阻塞流，直到 $s$ 到 $t$ 不可达；此时得到最大流。
+
+\subsubsection*{2. 二分图最大匹配}
+
+\textbf{建图}：源点 $S$ 向每个左部点连容量 1，左部 $u$ 向右部 $v$ 连容量 1（表示允许匹配），每个右部点向汇点 $T$ 连容量 1。
+
+\textbf{答案}：最大流的值就是最大匹配数。
+
+\textbf{适用场景}：
+\begin{itemize}
+    \item 配对类：任务分配、学生选课、机器与作业；
+    \item 棋盘类：黑白染色后，相邻格连边求最大匹配（多米诺骨牌覆盖）；
+    \item 二维偏序/区间覆盖类：把「一个点只能被用一次」建成容量 1 的边。
+\end{itemize}
+
+\textbf{实现选择}：点数 $10^3$ 以内用匈牙利 $O(VE)$ 即可；点数 $10^5$ 量级用 Dinic（单位容量图跑得极快）。
+
+\subsubsection*{3. 二分图的两个结论}
+
+\begin{center}
+\begin{tabular}{|c|c|p{6.6cm}|}
+\hline
+\textbf{结论} & \textbf{公式} & \textbf{适用场景} \\
+\hline
+最小点覆盖 & $=$ 最大匹配（Kőnig 定理）& 选最少的点盖住所有边 \\
+\hline
+最大独立集 & $=$ 顶点数 $-$ 最大匹配 & 选最多的点两两无边（冲突最小）\\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Kőnig 的构造}：从 $S$ 出发在残留网络上做一次 BFS，能到达的左部点和不能到达的右部点合起来就是一个最小点覆盖。
+
+\subsubsection*{4. DAG 的最小路径覆盖}
+
+\textbf{建图}：把每个点 $u$ 拆成 $u$ 和 $u'$。原图边 $u\to v$ 建成 $u\to v'$ 容量 1，再加 $S\to u$ 和 $u'\to T$ 容量 1。
+
+\textbf{答案}：$\text{点数} - \text{最大匹配}$。
+
+\textbf{直观理解}：一开始每个点各占一条路径（$n$ 条），每匹配一条边 $u\to v$ 就相当于把 $v$ 接到 $u$ 后面，路径数减 1。
+
+\textbf{适用场景}：最少几条链能把 DAG 的所有点串起来；把序列问题转成 DAG 后的覆盖问题。
+
+\subsubsection*{5. 最大权闭合子图}
+
+\textbf{问题}：每个点有权 $w$（可正可负），选一个子图使得子图中任何点的「后继」也在子图里（闭合），最大化权值和。
+
+\textbf{建图}：$w>0$ 的点 $S\to u$ 容量 $w$；$w<0$ 的点 $u\to T$ 容量 $-w$；原图依赖边 $u\to v$ 容量 $+\infty$。
+
+\textbf{答案}：$\displaystyle \sum_{w>0} w - \text{最小割}$。
+
+\textbf{适用场景}：项目选择（做项目 $A$ 必须先做项目 $B$）、依赖链上的收益最大化、最大权导出子图。
+
+\subsubsection*{6. 费用流的经典模型}
+
+\begin{center}
+\begin{tabular}{|p{5.4cm}|p{8.2cm}|}
+\hline
+\textbf{模型} & \textbf{建图与说明} \\
+\hline
+最小费用完美匹配 & $S\to$ 左部（容量 1、费用 0），左 $\to$ 右（容量 1、费用 $c_{ij}$），右部 $\to T$（容量 1、费用 0）；最小费用最大流即为最优分配 \\
+\hline
+带费用的运输 & 供应点 $\to$ 需求点，容量为运量上限、费用为单位运费 \\
+\hline
+可重复使用的边 & 把「一次成本」拆成两条边：一条容量 1、费用 $c$；另一条容量 $\infty$、费用 0 \\
+\hline
+最少操作次数 & 每次操作看作 $S\to t$ 的一条路径，费用为操作代价，跑 $k$ 次最短路（即限制流量 $k$）\\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection*{7. 上下界网络流（简要）}
+
+\textbf{无源汇可行流}：每条边有下界 $l$、上界 $u$。先令每条边流量为 $l$，则点 $u$ 的「出量 $-$ 入量」需要补偿：
+\begin{itemize}
+    \item 若出量多，从虚拟源 $SS$ 向 $u$ 连边；若入量多，从 $u$ 向虚拟汇 $TT$ 连边；
+    \item 跑 $SS$ 到 $TT$ 的最大流，若所有附加边都满流则存在可行流。
+\end{itemize}
+
+\textbf{有源汇}：先加一条 $T\to S$、上下界均为 $[0,\infty)$ 的边，转成无源汇问题；求最大/最小流时再在残留网络上补跑一次。
+
+\subsubsection*{8. 选择模型的三条经验}
+
+\begin{enumerate}
+    \item \textbf{看到「每个物品只能用一次」} → 容量 1 的边；
+    \item \textbf{看到「收益 + 依赖关系」} → 最大权闭合子图；
+    \item \textbf{看到「选或不选、代价互相影响」} → 最小割（二元关系建模）；两个变量 $x,y$ 的代价如果能写成
+    $a[x]+\text{关系}(x,y)$ 的形式，常能直接转成一条 $x\to y$ 容量为代价差的边。
+\end{enumerate}
