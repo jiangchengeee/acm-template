@@ -6,6 +6,16 @@ mt19937_64 gen(12345);
 const int N=5e5+5,mod=1e9+7,inf=1e9+7;
 int n,m,q,k;
 int a[N],b[N],c[N],d[N];
+int ksm(int a,int n,int p){//快速幂
+	int res=1;a=(a%p+p)%p;
+	while(n){
+		if(n&1)res=res*a%p;
+		n>>=1;a=a*a%p;
+	}
+	return res;
+}
+// 路径计数 + 行列式：统计「每条路径取一个点、不同路径互不相交」的方案数（CF167E）
+// 对每条源点跑一遍 DAG 上的路径数 DP，建成 k*k 矩阵，再在模 p 下算行列式
 void solve(){
 	int p;	
 	cin>>n>>m>>p;
@@ -76,6 +86,18 @@ signed main()
     return 0;
 }
 /*
-https://codeforces.com/contest/167/problem/E
+4 3 998244353
+1 3
+1 4
+2 4
+// 1
 
+题面：CF167E Wizards and Bets —— 数「每条路径取一个点、不同路径互不相交」的方案数，
+由 Lindstrom-Gessel-Viennot，它等于「路径数矩阵」的行列式，在模 p 下算。
+
+要点：
+1. 先拓扑排序，对每个源点跑一遍路径数 DP，得到 k*k 的矩阵（k = 源点个数 = 汇点个数）；
+2. 行列式用「辗转相除式」高斯消元：第 i 列下面有非零就交换两行并给答案取负；
+3. p 不一定是质数时不能求逆元，要用 gcd 消元（本题 p 是质数，所以直接 ksm 求逆）；
+4. 源点数 != 汇点数时题目无解（矩阵不是方阵），本题保证相等。
 */

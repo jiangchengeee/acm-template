@@ -111,6 +111,7 @@ vector<Point> convex_hull(vector<Point>& P) {
 	hull.resize(top);
 	return hull;
 }
+// 旋转卡壳求凸包直径。注意 dist 返回的是「距离的平方」，要真距离自己再 sqrt 一次
 int hull_diam(vector<Point>& hull){
 	int j=2;
 	int ans=0,H=hull.size();
@@ -152,10 +153,14 @@ signed main()
 	return 0;
 }
 /*
-1
-38133 49107
+3
+0 0
+3 0
+0 4
+// 25
 
-2 27269
-
-
+要点：
+1. 输出的是平方直径（dist 没开根号），要真距离再 sqrt；
+2. 先求凸包，再在凸包上转两个指针，叉积单调所以每步只前进；
+3. 坐标为整数时全程整数比较，不会掉精度；有浮点坐标时把 eps 加进叉积符号判断。
 */

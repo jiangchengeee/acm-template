@@ -78,6 +78,35 @@ TEX_HEAD = r"""% !TEX program = xelatex
 \newpage
 \tableofcontents
 \newpage
+
+\section*{使用说明}
+\addcontentsline{toc}{section}{使用说明}
+
+\paragraph{编译与验证}
+\begin{itemize}
+  \item 编译命令：\texttt{g++ -O2 -std=c++20 -o a a.cpp}；全部板子都在 GCC 15 上单独编译验证过，
+        并且带样例的板子都用暴力程序对拍过。
+  \item 每个板子末尾的注释块就是样例：「输入」若干行，紧跟若干行以 \texttt{//} 开头的期望输出。
+        这些输出全部是程序真实跑出来的，不是手写的，可以直接拿来手算核对。
+\end{itemize}
+
+\paragraph{哪些板子能直接跑}
+\begin{itemize}
+  \item 自带 \texttt{main} 的板子：复制出来就能编译运行、自带读入输出格式。
+  \item 下面这些是「片段」，没有 \texttt{main}，依赖启动文件里的 \texttt{up/down}、\texttt{N}、\texttt{mod}
+        以及 \texttt{\#define int long long}，使用时贴在「一键启动模板」后面：
+        \textbf{stl 库全部 12 个}，计算几何/极角排序，树论/倍增，数据结构/01trie、dsu、莫队、树状数组、
+        线段树（区间max），数学/exgcd、欧拉筛、线性求逆元（前缀积法），图论/dij、欧拉路径，杂项/int128、modint。
+  \item 标题带「推导笔记」的是数学推导（LaTeX 排版），不是代码，比赛时用来现场回忆结论。
+\end{itemize}
+
+\paragraph{几个容易写挂的地方}
+\begin{itemize}
+  \item \texttt{\#define int long long} 之后，需要 32 位的地方要显式写 \texttt{int32\_t}
+        （例如 01trie、前缀线性基的数组），否则内存直接翻倍。
+  \item 取模答案出现负数，多半是最后少了一句 \texttt{((x \% mod) + mod) \% mod}（树链剖分那页踩过）。
+  \item 多组数据的板子要把 \texttt{cin >> t} 打开；单组数据必须注释掉，否则会多吃掉一行输入。
+\end{itemize}
 """
 
 TEX_TAIL = r"""

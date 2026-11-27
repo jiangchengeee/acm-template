@@ -49,11 +49,11 @@ signed main()
 /*
 abacaba
 3
-1 3 3 5
+1 3 5 7
 1 2 4 5
 1 7 1 7
 // Yes
-// Yes
+// No
 // Yes
 
 要点：

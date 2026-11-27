@@ -62,5 +62,5 @@ signed main()
 1. dfn 是时间戳，low 是能回溯到的最早时间戳；同一个 SCC 的 low 判定是 dfn[u]==low[u]；
 2. scc 编号按"出栈顺序"给出，是缩点后 DAG 的逆拓扑序，做 DP 时直接用；
 3. 缩点：把每个 scc 当一个点，边去重后原图变成 DAG，可以拓扑 DP；
-4. 割点/桥：Tarjan 稍改一下——桥是 low[v] > dfn[u]，割点是 low[v] >= dfn[u]（且不是根）。
+4. 割点/桥：Tarjan 稍改一下--桥是 low[v] > dfn[u]，割点是 low[v] >= dfn[u]（且不是根）。
 */

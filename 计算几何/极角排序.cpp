@@ -15,7 +15,7 @@ struct Point {
 	}
 };
 
-// 2. 叉积 (Cross Product): OA × OB
+// 2. 叉积 (Cross Product): OA * OB
 // 几何意义：以 OA 和 OB 为邻边的平行四边形的有向面积
 // 如果结果 > 0，说明从 OA 到 OB 是逆时针方向 (A 的极角小于 B 的极角)
 // 如果结果 < 0，说明是顺时针方向

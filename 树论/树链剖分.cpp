@@ -25,29 +25,30 @@ void dfs2(int u,int tp){//给每个点分配 dfn，同一条链上连续
 }
 // ---------- 线段树维护 dfn 序 ----------
 int sum[N<<2],tag[N<<2];
+inline int mo(int x){return ((x%mod_)+mod_)%mod_;}//点权/增量可能是负的，统一掰回 [0,mod)
 void build(int u,int l,int r){
-	if(l==r){sum[u]=a[rnk[l]]%mod_;return;}
+	if(l==r){sum[u]=mo(a[rnk[l]]);return;}
 	int mid=(l+r)>>1;
 	build(u<<1,l,mid),build(u<<1|1,mid+1,r);
-	sum[u]=(sum[u<<1]+sum[u<<1|1])%mod_;
+	sum[u]=mo(sum[u<<1]+sum[u<<1|1]);
 }
 void pushdown(int u,int l,int r){
 	if(!tag[u])return;
 	int mid=(l+r)>>1;
-	sum[u<<1]=(sum[u<<1]+tag[u]*(mid-l+1))%mod_,tag[u<<1]=(tag[u<<1]+tag[u])%mod_;
-	sum[u<<1|1]=(sum[u<<1|1]+tag[u]*(r-mid))%mod_,tag[u<<1|1]=(tag[u<<1|1]+tag[u])%mod_;
+	sum[u<<1]=mo(sum[u<<1]+tag[u]*(mid-l+1)),tag[u<<1]=mo(tag[u<<1]+tag[u]);
+	sum[u<<1|1]=mo(sum[u<<1|1]+tag[u]*(r-mid)),tag[u<<1|1]=mo(tag[u<<1|1]+tag[u]);
 	tag[u]=0;
 }
 void update(int u,int l,int r,int ql,int qr,int v){
 	if(ql<=l&&r<=qr){
-		sum[u]=(sum[u]+v*(r-l+1))%mod_,tag[u]=(tag[u]+v)%mod_;
+		sum[u]=mo(sum[u]+v*(r-l+1)),tag[u]=mo(tag[u]+v);
 		return;
 	}
 	pushdown(u,l,r);
 	int mid=(l+r)>>1;
 	if(ql<=mid)update(u<<1,l,mid,ql,qr,v);
 	if(qr>mid)update(u<<1|1,mid+1,r,ql,qr,v);
-	sum[u]=(sum[u<<1]+sum[u<<1|1])%mod_;
+	sum[u]=mo(sum[u<<1]+sum[u<<1|1]);
 }
 int query(int u,int l,int r,int ql,int qr){
 	if(ql<=l&&r<=qr)return sum[u];
@@ -55,7 +56,7 @@ int query(int u,int l,int r,int ql,int qr){
 	int mid=(l+r)>>1,res=0;
 	if(ql<=mid)res+=query(u<<1,l,mid,ql,qr);
 	if(qr>mid)res+=query(u<<1|1,mid+1,r,ql,qr);
-	return res%mod_;
+	return mo(res);
 }
 // ---------- 树上操作 ----------
 void path_add(int u,int v,int w){
@@ -76,7 +77,7 @@ int path_sum(int u,int v){
 	}
 	if(dep[u]>dep[v])swap(u,v);
 	res+=query(1,1,n,dfn[u],dfn[v]);
-	return res%mod_;
+	return mo(res);
 }
 int sub_sum(int u){return query(1,1,n,dfn[u],dfn[u]+sz[u]-1);}//子树在 dfn 上是连续一段
 void solve(){
@@ -130,13 +131,14 @@ signed main()
 2 2 4
 3 3 2
 4 1
-// 9
-// 12
-// 9
+// 10
+// 14
+// 25
 
 要点：
 1. dfs1 求重儿子，dfs2 先走重儿子保证每条重链的 dfn 连续；
 2. 路径 u-v：两条链不停往上跳，每次处理 dfn[top[u]]..dfn[u]；
 3. 子树是 dfn 上连续的一段 [dfn[u], dfn[u]+sz[u]-1]；
-4. 把线段树换成"区间加 + 区间和"，就是板子；换成区间 max/赋值的也同理。
+4. 点权/增量可能是负的，取模一律走 mo()，别直接写 %mod 输出负数；
+5. 把线段树换成"区间加 + 区间和"，就是板子；换成区间 max/赋值的也同理。
 */

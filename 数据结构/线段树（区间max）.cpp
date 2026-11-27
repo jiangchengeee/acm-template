@@ -1,3 +1,8 @@
+#include <bits/stdc++.h>
+using namespace std;
+// 线段树（区间加 + 区间最大值）：SegTree LL(a) 用 a[1..n] 建树
+// update(ql,qr,x) 区间加 x，query(ql,qr) 区间最大值，均 O(log n)
+// 与「区间加 + 区间和」的区别：pushup 用 max，maketag 不需要区间长度
 template <typename T>
 struct SegTree {
     struct Node {

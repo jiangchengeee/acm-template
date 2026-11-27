@@ -31,11 +31,11 @@ void solve(){
 	up(k,1,m){
 		int i,a,j,b;//约束：(x_i == a) or (x_j == b)
 		cin>>i>>a>>j>>b;
-		add(node(i,a^1),node(j,b));//¬a -> b
-		add(node(j,b^1),node(i,a));//¬b -> a
+		add(node(i,a^1),node(j,b));//!a -> b
+		add(node(j,b^1),node(i,a));//!b -> a
 	}
 	up(i,0,2*n-1)if(!dfn[i])tarjan(i);
-	up(i,1,n)if(scc[node(i,0)]==scc[node(i,1)]){//x 与 ¬x 同一 SCC -> 矛盾
+	up(i,1,n)if(scc[node(i,0)]==scc[node(i,1)]){//x 与 !x 同一 SCC -> 矛盾
 		cout<<"IMPOSSIBLE\n";return;
 	}
 	// Tarjan 的 SCC 编号是逆拓扑序，所以"真"的编号更小就取真
@@ -58,12 +58,13 @@ signed main()
 3 2
 1 1 2 0
 2 1 3 1
-// 1 1 0
+// 0 0 1
+// 注：答案不唯一，输出任意一组可行解都可以，判题用 special judge
 
 要点：
-1. 每条约束 (a or b) 变成两条蕴含边：¬a -> b、¬b -> a；
+1. 每条约束 (a or b) 变成两条蕴含边：!a -> b、!b -> a；
 2. Tarjan 求 SCC，某变量的"真"和"假"在同一 SCC 里就无解；
-3. 赋值：scc[真] < scc[假] 取真——Tarjan 的 SCC 编号是逆拓扑序，和 Kosaraju 相反，写反会得到错解；
+3. 赋值：scc[真] < scc[假] 取真--Tarjan 的 SCC 编号是逆拓扑序，和 Kosaraju 相反，写反会得到错解；
 4. 结点编号 0 起（2*(i-1)+v，共 2n 个），遍历区间是 [0, 2n-1]，写成 2n+1 会漏点；
 5. 复杂度 O(n+m)。
 */

@@ -1,3 +1,5 @@
+#include <bits/stdc++.h>
+using namespace std;
 #define up(i, a, b) for (int i = (a); i <= (b); ++i)
 #define down(i, a, b) for (int i = (a); i >= (b); --i)
 const int MAXN=5e5+5;              // 元素个数上限，按题目改

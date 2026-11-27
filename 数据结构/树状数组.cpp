@@ -1,3 +1,7 @@
+#include <bits/stdc++.h>
+using namespace std;
+// 树状数组（单点改 + 前缀和）：Fenwick LL(n) 建 n 个数，add/query 均为 O(log n)
+// 区间改 + 区间查要开两棵树，区间改 + 单点查用差分即可
 template <typename T>
 struct Fenwick {
     int n;
